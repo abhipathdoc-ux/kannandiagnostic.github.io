@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kannan Diagnostics | Mysore</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+    <style>
+        :root { --agilus-blue: #165BAD; --whatsapp: #25D366; --bg: #F0F4F8; --card-shadow: 0 4px 20px rgba(0,0,0,0.08); --radius: 20px; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); padding-bottom: 110px; color: #2D3748; overflow-x: hidden; }
+        
+        header { background: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 1000; }
+        .logo-text { font-weight: 800; color: var(--agilus-blue); font-size: 1.1rem; letter-spacing: -0.5px; }
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+        
+        .tab-content { display: none; }
+        .active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .card { background: white; padding: 25px; border-radius: var(--radius); margin-bottom: 20px; box-shadow: var(--card-shadow); border: 1px solid rgba(0,0,0,0.02); }
+        .banner { background: linear-gradient(135deg, #165BAD 0%, #003366 100%); color: white; padding: 35px 25px; border-radius: var(--radius); margin-bottom: 25px; text-align: center; }
+        
+        .test-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #F1F5F9; gap: 10px; }
+        .test-info { flex: 1; }
+        .test-price { color: var(--agilus-blue); font-weight: 700; font-size: 0.95rem; display: block; margin-top: 4px; }
+        
+        input, select { width: 100%; padding: 16px; border-radius: 12px; border: 2px solid #E2E8F0; box-sizing: border-box; font-size: 1rem; background: white; outline: none; }
+        .input-group label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--agilus-blue); margin-bottom: 8px; text-transform: uppercase; }
+
+        .btn-main { background: var(--agilus-blue); color: white; border: none; padding: 18px; border-radius: 15px; font-weight: 700; width: 100%; font-size: 1.1rem; cursor: pointer; }
+        .btn-action { padding: 10px 18px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; min-width: 90px; }
+        .btn-add { background: var(--agilus-blue); color: white; }
+        .btn-remove { background: #FED7D7; color: #C53030; }
+        
+        .gps-btn { background: #EBF4FF; color: var(--agilus-blue); border: 2px solid #C3DAFE; padding: 14px; border-radius: 12px; width: 100%; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
+        .ocr-zone { border: 2.5px dashed var(--agilus-blue); background: #F0F7FF; text-align: center; padding: 45px 20px; border-radius: var(--radius); cursor: pointer; }
+        
+        nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0 25px 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1001; }
+        nav button { border: none; background: none; color: #A0AEC0; font-size: 0.85rem; display: flex; flex-direction: column; align-items: center; font-weight: 600; cursor: pointer; }
+        nav button.active-nav { color: var(--agilus-blue); }
+        
+        #cart-bar { display: none; position: fixed; bottom: 95px; left: 20px; right: 20px; background: var(--agilus-blue); color: white; padding: 18px; border-radius: 18px; z-index: 1000; text-align: center; font-weight: 700; box-shadow: 0 10px 25px rgba(22, 91, 173, 0.4); cursor: pointer; }
+        .full-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; overflow-y: auto; padding: 30px 20px; box-sizing: border-box; }
+        
+        /* Chat UI Specifics */
+        #chat-window { height: 50vh; overflow-y: auto; background: #F7FAFC; border-radius: 15px; padding: 15px; border: 1px solid #E2E8F0; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .chat-bubble { padding: 12px 16px; border-radius: 15px; max-width: 85%; font-size: 0.95rem; line-height: 1.4; }
+        .ai-msg { background: white; color: #2D3748; align-self: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .user-msg { background: var(--agilus-blue); color: white; align-self: flex-end; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-text">KANNAN DIAGNOSTICS</div>
+    <div style="font-size: 0.7rem; font-weight: 700; background: #EBF4FF; color: var(--agilus-blue); padding: 5px 10px; border-radius: 20px;">MYSURU</div>
+</header>
+
+<div id="cart-bar" onclick="openModal('cart-modal')">🛒 VIEW CART (<span id="cart-count">0</span>)</div>
+
+<div class="container">
+    <div id="Home" class="tab-content active">
+        <div class="banner">
+            <h2 style="margin:0;">Precision Lab Testing</h2>
+            <button onclick="openModal('chat-modal')" style="background:white; color:var(--agilus-blue); border:none; padding:12px 25px; border-radius:30px; font-weight:800; cursor:pointer; margin-top:15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">💬 SYMPTOM GUIDE (AI)</button>
+        </div>
+
+        <div class="card">
+            <h4>📷 Prescription Scanner</h4>
+            <div class="ocr-zone" onclick="document.getElementById('ocr-input').click()">
+                <span style="font-size: 2.5rem;">📸</span><br><b>Scan Written Prescription</b>
+            </div>
+            <input type="file" id="ocr-input" accept="image/*" capture="camera" style="display:none;" onchange="handleOCR(this)">
+            <div id="ocr-status" style="margin-top:12px; font-size:0.9rem; font-weight:700; text-align:center; color: var(--agilus-blue);"></div>
+        </div>
+
+        <div class="card">
+            <h4>Book Individual Tests</h4>
+            <input type="text" id="test-search" placeholder="Search CBC, Lipid, Diabetes..." oninput="doSearch()">
+            <div id="search-results" style="margin-top:15px;">Loading catalogue...</div>
+        </div>
+    </div>
+
+    <div id="Reports" class="tab-content">
+        <div class="card">
+            <h2>Download Reports</h2>
+            <div class="input-group"><label>Enter SID Number</label><input type="text" placeholder="MY-2026-XXXX"></div>
+            <button class="btn-main" onclick="alert('System Updating... Check back in 1 hour.')">FETCH REPORTS</button>
+        </div>
+    </div>
+</div>
+
+<div id="chat-modal" class="full-modal">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+        <h3>AI Health Assistant</h3>
+        <button onclick="closeModal('chat-modal')" style="border:none; background:none; font-size:2rem;">✕</button>
+    </div>
+    <div id="chat-window">
+        <div class="chat-bubble ai-msg">Hello! Describe your symptoms or ask about specific tests. I can help you find what's needed at Kannan Diagnostics.</div>
+    </div>
+    <div style="display:flex; gap:10px;">
+        <input type="text" id="chat-input" placeholder="e.g. Constant fatigue and dizziness">
+        <button onclick="askGemini()" style="background:var(--agilus-blue); color:white; border:none; border-radius:12px; padding:0 20px; font-weight:700;">SEND</button>
+    </div>
+    <p style="font-size: 0.6rem; color: #718096; text-align: center; margin-top: 15px;">*AI suggestions are not medical diagnoses. Always consult a doctor.</p>
+</div>
+
+<div id="cart-modal" class="full-modal">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 25px;"><h2>Confirm Order</h2><button onclick="closeModal('cart-modal')" style="border:none; background:none; font-size:2rem;">✕</button></div>
+    <div id="cart-list"></div>
+    <div style="font-weight:800; font-size:1.4rem; border-top:2px solid #F1F5F9; padding-top:20px; margin-bottom:20px;">Total: ₹<span id="cart-total">0</span></div>
+    
+    <div class="card" style="background:#F8FAFC; padding: 20px;">
+        <button class="gps-btn" onclick="getGPS()">📍 USE CURRENT LOCATION</button>
+        <div class="input-group"><label>Patient Name</label><input type="text" id="p_name"></div>
+        <div class="input-group"><label>Street / Area</label><input type="text" id="p_street"></div>
+    </div>
+    
+    <button onclick="payUPI()" class="btn-main">PAY VIA UPI & BOOK</button>
+    <button id="wa-final" onclick="sendToWA()" class="btn-main" style="background:var(--whatsapp); display:none; margin-top:10px;">MESSAGE LAB ON WHATSAPP</button>
+</div>
+
+<nav>
+    <button onclick="switchTab('Home')" class="active-nav" id="nav-Home"><span>🏠</span>Home</button>
+    <button onclick="switchTab('Reports')" id="nav-Reports"><span>📄</span>Reports</button>
+</nav>
+
+<script>
+    // Configuration
+    const UPI_ID = "yourname@okaxis"; 
+    const LAB_WA = "919663667061";
+    const GEMINI_API_KEY = "AIzaSyCd7F358rZGaxKEq1EhtVfLDpAkClnfLc4"; // Replace this!
+
+    // Supabase Config
+    const supabaseUrl = 'https://ywjdeosslnvvtcbtqrgx.supabase.co';
+    const supabaseKey = 'sb_publishable_ujUGw6LdRl29ursJ4WzDeA_sddMOxRz';
+    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    let allTests = []; 
+    let cart = [];
+
+    // 1. Gemini AI Integration
+    async function askGemini() {
+        const input = document.getElementById('chat-input');
+        const window = document.getElementById('chat-window');
+        const query = input.value.trim();
+        if(!query) return;
+
+        // User bubble
+        window.innerHTML += `<div class="chat-bubble user-msg">${query}</div>`;
+        input.value = "";
+        window.scrollTop = window.scrollHeight;
+
+        // Loading bubble
+        const loadId = "ai-" + Date.now();
+        window.innerHTML += `<div id="${loadId}" class="chat-bubble ai-msg">Thinking...</div>`;
+
+        try {
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `You are a medical lab assistant for Kannan Diagnostics in Mysore. 
+                        A user says: "${query}". Suggest 2-3 specific blood tests. Be professional and brief. 
+                        Always add: "Consult your doctor for a final prescription."` }]}]
+                })
+            });
+            const data = await resp.json();
+            const text = data.candidates[0].content.parts[0].text;
+            document.getElementById(loadId).innerText = text;
+        } catch (e) {
+            document.getElementById(loadId).innerText = "Unable to connect. Please try again.";
+        }
+        window.scrollTop = window.scrollHeight;
+    }
+
+    // 2. Database & Catalogue Logic
+    async function loadTests() {
+        const { data } = await _supabase.from('lab_tests').select('*');
+        if(data) { allTests = data; renderMenu(data); }
+    }
+
+    function renderMenu(data) {
+        const results = document.getElementById('search-results');
+        results.innerHTML = data.map(t => {
+            const inCart = cart.some(c => c.id == t.id);
+            return `
+                <div class="test-row">
+                    <div class="test-info">
+                        <b>${t.test_name}</b>
+                        <span class="test-price">₹${t.price}</span>
+                    </div>
+                    <button class="btn-action ${inCart ? 'btn-remove' : 'btn-add'}" 
+                            onclick="${inCart ? `removeFromCartById(${t.id})` : `addToCart(${t.id})`}">
+                        ${inCart ? 'REMOVE' : 'ADD'}
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 3. Cart Functions
+    function addToCart(id) {
+        const test = allTests.find(x => x.id == id);
+        if(!cart.some(c => c.id == id)) { cart.push(test); updateCartUI(); }
+    }
+
+    function removeFromCartById(id) {
+        cart = cart.filter(c => c.id != id);
+        updateCartUI();
+    }
+
+    function updateCartUI() {
+        document.getElementById('cart-bar').style.display = cart.length > 0 ? 'block' : 'none';
+        document.getElementById('cart-count').innerText = cart.length;
+        const total = cart.reduce((s, t) => s + Number(t.price), 0);
+        document.getElementById('cart-total').innerText = total;
+
+        document.getElementById('cart-list').innerHTML = cart.map((t, i) => `
+            <div class="test-row">
+                <div class="test-info"><b>${t.test_name}</b><span class="test-price">₹${t.price}</span></div>
+                <button class="btn-action btn-remove" onclick="removeFromCartByIndex(${i})">Remove</button>
+            </div>
+        `).join('');
+        renderMenu(allTests);
+    }
+
+    function removeFromCartByIndex(i) { cart.splice(i, 1); updateCartUI(); }
+
+    // 4. OCR & GPS
+    async function handleOCR(input) {
+        const status = document.getElementById('ocr-status');
+        status.innerText = "🔍 PROCESSING IMAGE...";
+        const { data: { text } } = await Tesseract.recognize(input.files[0], 'eng');
+        let count = 0;
+        allTests.forEach(t => {
+            if(text.toUpperCase().includes(t.test_name.toUpperCase())) {
+                if(!cart.some(c => c.id == t.id)) { cart.push(t); count++; }
+            }
+        });
+        status.innerText = count > 0 ? `✅ FOUND ${count} TESTS!` : "❓ NO MATCH. SENDING TO LAB...";
+        updateCartUI();
+    }
+
+    async function getGPS() {
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
+            const data = await res.json();
+            document.getElementById('p_street').value = data.display_name.split(',').slice(0,3).join(',');
+        });
+    }
+
+    // 5. Payments & UI Helpers
+    function payUPI() {
+        const amt = document.getElementById('cart-total').innerText;
+        window.location.href = `upi://pay?pa=${UPI_ID}&pn=KannanLab&am=${amt}&cu=INR`;
+        document.getElementById('wa-final').style.display = 'block';
+    }
+
+    function sendToWA() {
+        const msg = `*BOOKING FROM APP*\n*Name:* ${document.getElementById('p_name').value}\n*Tests:* ${cart.map(t=>t.test_name).join(', ')}\n*Address:* ${document.getElementById('p_street').value}`;
+        window.location.href = `https://wa.me/${LAB_WA}?text=${encodeURIComponent(msg)}`;
+    }
+
+    function doSearch() {
+        const q = document.getElementById('test-search').value.toLowerCase();
+        renderMenu(allTests.filter(t => t.test_name.toLowerCase().includes(q)));
+    }
+
+    function switchTab(id) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active-nav'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('nav-' + id).classList.add('active-nav');
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'block'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // Initial Load
+    loadTests();
+</script>
+</body>
+</html>

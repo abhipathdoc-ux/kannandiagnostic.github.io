@@ -13,45 +13,39 @@
     <style>
         :root { --agilus-blue: #165BAD; --whatsapp: #25D366; --bg: #F0F4F8; --card-shadow: 0 4px 20px rgba(0,0,0,0.08); --radius: 20px; }
         body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); padding-bottom: 110px; color: #2D3748; overflow-x: hidden; }
-        
         header { background: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); position: sticky; top: 0; z-index: 1000; }
         .logo-text { font-weight: 800; color: var(--agilus-blue); font-size: 1.1rem; letter-spacing: -0.5px; }
         .container { padding: 20px; max-width: 600px; margin: 0 auto; }
-        
         .tab-content { display: none; }
         .active { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
         .card { background: white; padding: 25px; border-radius: var(--radius); margin-bottom: 20px; box-shadow: var(--card-shadow); border: 1px solid rgba(0,0,0,0.02); }
         .banner { background: linear-gradient(135deg, #165BAD 0%, #003366 100%); color: white; padding: 35px 25px; border-radius: var(--radius); margin-bottom: 25px; text-align: center; }
-        
         .test-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #F1F5F9; gap: 10px; }
         .test-info { flex: 1; }
         .test-price { color: var(--agilus-blue); font-weight: 700; font-size: 0.95rem; display: block; margin-top: 4px; }
-        
         input, select { width: 100%; padding: 16px; border-radius: 12px; border: 2px solid #E2E8F0; box-sizing: border-box; font-size: 1rem; background: white; outline: none; }
         .input-group label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--agilus-blue); margin-bottom: 8px; text-transform: uppercase; }
-
         .btn-main { background: var(--agilus-blue); color: white; border: none; padding: 18px; border-radius: 15px; font-weight: 700; width: 100%; font-size: 1.1rem; cursor: pointer; }
         .btn-action { padding: 10px 18px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; min-width: 90px; }
         .btn-add { background: var(--agilus-blue); color: white; }
         .btn-remove { background: #FED7D7; color: #C53030; }
-        
         .gps-btn { background: #EBF4FF; color: var(--agilus-blue); border: 2px solid #C3DAFE; padding: 14px; border-radius: 12px; width: 100%; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
         .ocr-zone { border: 2.5px dashed var(--agilus-blue); background: #F0F7FF; text-align: center; padding: 45px 20px; border-radius: var(--radius); cursor: pointer; }
-        
         nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0 25px 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 1001; }
         nav button { border: none; background: none; color: #A0AEC0; font-size: 0.85rem; display: flex; flex-direction: column; align-items: center; font-weight: 600; cursor: pointer; }
         nav button.active-nav { color: var(--agilus-blue); }
-        
         #cart-bar { display: none; position: fixed; bottom: 95px; left: 20px; right: 20px; background: var(--agilus-blue); color: white; padding: 18px; border-radius: 18px; z-index: 1000; text-align: center; font-weight: 700; box-shadow: 0 10px 25px rgba(22, 91, 173, 0.4); cursor: pointer; }
-        .full-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; overflow-y: auto; padding: 30px 20px; box-sizing: border-box; }
         
-        /* Chat UI Specifics */
+        /* Chat UI Extensions */
+        .full-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; overflow-y: auto; padding: 30px 20px; box-sizing: border-box; }
         #chat-window { height: 50vh; overflow-y: auto; background: #F7FAFC; border-radius: 15px; padding: 15px; border: 1px solid #E2E8F0; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
         .chat-bubble { padding: 12px 16px; border-radius: 15px; max-width: 85%; font-size: 0.95rem; line-height: 1.4; }
         .ai-msg { background: white; color: #2D3748; align-self: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .user-msg { background: var(--agilus-blue); color: white; align-self: flex-end; }
+        .ai-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-yes { background: var(--whatsapp); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .btn-no { background: #E2E8F0; color: #4A5568; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -101,11 +95,11 @@
         <button onclick="closeModal('chat-modal')" style="border:none; background:none; font-size:2rem;">✕</button>
     </div>
     <div id="chat-window">
-        <div class="chat-bubble ai-msg">Hello! Describe your symptoms or ask about specific tests. I can help you find what's needed at Kannan Diagnostics.</div>
+        <div class="chat-bubble ai-msg">Hello! Describe your symptoms. I will suggest tests from our Mysore lab catalog.</div>
     </div>
     <div style="display:flex; gap:10px;">
         <input type="text" id="chat-input" placeholder="e.g. Constant fatigue and dizziness">
-        <button onclick="askGemini()" style="background:var(--agilus-blue); color:white; border:none; border-radius:12px; padding:0 20px; font-weight:700;">SEND</button>
+        <button onclick="askHuggingFace()" style="background:var(--agilus-blue); color:white; border:none; border-radius:12px; padding:0 20px; font-weight:700;">SEND</button>
     </div>
     <p style="font-size: 0.6rem; color: #718096; text-align: center; margin-top: 15px;">*AI suggestions are not medical diagnoses. Always consult a doctor.</p>
 </div>
@@ -131,12 +125,10 @@
 </nav>
 
 <script>
-    // Configuration
-    const UPI_ID = "yourname@okaxis"; 
+    const HF_TOKEN = "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"; // YOUR TOKEN
+    const UPI_ID = "9663667061@okbizaxis"; 
     const LAB_WA = "919663667061";
-    const GEMINI_API_KEY = "AIzaSyCd7F358rZGaxKEq1EhtVfLDpAkClnfLc4"; // Replace this!
 
-    // Supabase Config
     const supabaseUrl = 'https://ywjdeosslnvvtcbtqrgx.supabase.co';
     const supabaseKey = 'sb_publishable_ujUGw6LdRl29ursJ4WzDeA_sddMOxRz';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -144,42 +136,85 @@
     let allTests = []; 
     let cart = [];
 
-    // 1. Gemini AI Integration
-    async function askGemini() {
+    // --- NEW CHAT MODEL LOGIC (LLAMA-3) ---
+    async function askHuggingFace() {
         const input = document.getElementById('chat-input');
         const window = document.getElementById('chat-window');
         const query = input.value.trim();
         if(!query) return;
 
-        // User bubble
         window.innerHTML += `<div class="chat-bubble user-msg">${query}</div>`;
         input.value = "";
         window.scrollTop = window.scrollHeight;
 
-        // Loading bubble
         const loadId = "ai-" + Date.now();
-        window.innerHTML += `<div id="${loadId}" class="chat-bubble ai-msg">Thinking...</div>`;
+        window.innerHTML += `<div id="${loadId}" class="chat-bubble ai-msg">Consulting lab records...</div>`;
 
         try {
-            const resp = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+            const response = await fetch(`https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct`, {
+                headers: { "Authorization": `Bearer ${HF_TOKEN}`, "Content-Type": "application/json" },
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: `You are a medical lab assistant for Kannan Diagnostics in Mysore. 
-                        A user says: "${query}". Suggest 2-3 specific blood tests. Be professional and brief. 
-                        Always add: "Consult your doctor for a final prescription."` }]}]
-                })
+                    inputs: `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+                    You are a Lab Assistant for Kannan Diagnostics. 
+                    - Give a very brief 1-sentence health tip.
+                    - Suggest exactly 2 lab tests.
+                    - YOU MUST END YOUR RESPONSE WITH THIS TAG: [SUGGEST: TestName1, TestName2]
+                    - Use common names like CBC, Lipid Profile, Thyroid, Diabetes.<|eot_id|>
+                    <|start_header_id|>user<|end_header_id|>${query}<|eot_id|>
+                    <|start_header_id|>assistant<|end_header_id|>`,
+                    parameters: { max_new_tokens: 200, temperature: 0.6 }
+                }),
             });
-            const data = await resp.json();
-            const text = data.candidates[0].content.parts[0].text;
-            document.getElementById(loadId).innerText = text;
+
+            const result = await response.json();
+            let fullText = result[0].generated_text;
+            
+            // Extract only the assistant's reply
+            if (fullText.includes("assistant<|end_header_id|>")) {
+                fullText = fullText.split("assistant<|end_header_id|>")[1].trim();
+            }
+
+            const aiBubble = document.getElementById(loadId);
+            const match = fullText.match(/\[SUGGEST: (.*?)\]/);
+            const cleanMsg = fullText.replace(/\[SUGGEST: .*?\]/, "").trim();
+            
+            aiBubble.innerHTML = `<div>${cleanMsg}</div>`;
+
+            if (match) {
+                const testNames = match[1].split(',').map(s => s.trim().toUpperCase());
+                let foundInCatalog = [];
+                testNames.forEach(name => {
+                    const found = allTests.find(t => t.test_name.toUpperCase().includes(name) || name.includes(t.test_name.toUpperCase()));
+                    if (found) foundInCatalog.push(found);
+                });
+
+                if (foundInCatalog.length > 0) {
+                    const priceList = foundInCatalog.map(t => `• ${t.test_name}: <b>₹${t.price}</b>`).join('<br>');
+                    aiBubble.innerHTML += `<div style="margin-top:10px; border-top:1px solid #eee; padding-top:10px;"><b>Prices:</b><br>${priceList}<br><b>Add to cart?</b></div>`;
+                    const actions = document.createElement('div');
+                    actions.className = 'ai-actions';
+                    actions.innerHTML = `<button class="btn-yes" onclick="addSuggestedToCart(${JSON.stringify(foundInCatalog.map(t=>t.id))}, '${loadId}')">YES, ADD ALL</button>
+                                         <button class="btn-no" onclick="this.parentElement.innerHTML='<i>Selected No</i>'">NO</button>`;
+                    aiBubble.appendChild(actions);
+                }
+            }
         } catch (e) {
-            document.getElementById(loadId).innerText = "Unable to connect. Please try again.";
+            document.getElementById(loadId).innerText = "Assistant is busy. Try again.";
         }
         window.scrollTop = window.scrollHeight;
     }
 
-    // 2. Database & Catalogue Logic
+    function addSuggestedToCart(ids, bubbleId) {
+        ids.forEach(id => {
+            const test = allTests.find(t => t.id === id);
+            if (!cart.some(c => c.id === id)) cart.push(test);
+        });
+        updateCartUI();
+        document.getElementById(bubbleId).querySelector('.ai-actions').innerHTML = "<b style='color:var(--whatsapp)'>✅ Added to cart!</b>";
+    }
+
+    // --- CORE APP LOGIC ---
     async function loadTests() {
         const { data } = await _supabase.from('lab_tests').select('*');
         if(data) { allTests = data; renderMenu(data); }
@@ -189,22 +224,11 @@
         const results = document.getElementById('search-results');
         results.innerHTML = data.map(t => {
             const inCart = cart.some(c => c.id == t.id);
-            return `
-                <div class="test-row">
-                    <div class="test-info">
-                        <b>${t.test_name}</b>
-                        <span class="test-price">₹${t.price}</span>
-                    </div>
-                    <button class="btn-action ${inCart ? 'btn-remove' : 'btn-add'}" 
-                            onclick="${inCart ? `removeFromCartById(${t.id})` : `addToCart(${t.id})`}">
-                        ${inCart ? 'REMOVE' : 'ADD'}
-                    </button>
-                </div>
-            `;
+            return `<div class="test-row"><div class="test-info"><b>${t.test_name}</b><span class="test-price">₹${t.price}</span></div>
+                    <button class="btn-action ${inCart ? 'btn-remove' : 'btn-add'}" onclick="${inCart ? `removeFromCartById(${t.id})` : `addToCart(${t.id})`}">${inCart ? 'REMOVE' : 'ADD'}</button></div>`;
         }).join('');
     }
 
-    // 3. Cart Functions
     function addToCart(id) {
         const test = allTests.find(x => x.id == id);
         if(!cart.some(c => c.id == id)) { cart.push(test); updateCartUI(); }
@@ -218,24 +242,16 @@
     function updateCartUI() {
         document.getElementById('cart-bar').style.display = cart.length > 0 ? 'block' : 'none';
         document.getElementById('cart-count').innerText = cart.length;
-        const total = cart.reduce((s, t) => s + Number(t.price), 0);
-        document.getElementById('cart-total').innerText = total;
-
-        document.getElementById('cart-list').innerHTML = cart.map((t, i) => `
-            <div class="test-row">
-                <div class="test-info"><b>${t.test_name}</b><span class="test-price">₹${t.price}</span></div>
-                <button class="btn-action btn-remove" onclick="removeFromCartByIndex(${i})">Remove</button>
-            </div>
-        `).join('');
+        document.getElementById('cart-total').innerText = cart.reduce((s, t) => s + Number(t.price), 0);
+        document.getElementById('cart-list').innerHTML = cart.map((t, i) => `<div class="test-row"><div class="test-info"><b>${t.test_name}</b><span class="test-price">₹${t.price}</span></div><button class="btn-action btn-remove" onclick="removeFromCartByIndex(${i})">Remove</button></div>`).join('');
         renderMenu(allTests);
     }
 
     function removeFromCartByIndex(i) { cart.splice(i, 1); updateCartUI(); }
 
-    // 4. OCR & GPS
     async function handleOCR(input) {
         const status = document.getElementById('ocr-status');
-        status.innerText = "🔍 PROCESSING IMAGE...";
+        status.innerText = "🔍 SCANNING...";
         const { data: { text } } = await Tesseract.recognize(input.files[0], 'eng');
         let count = 0;
         allTests.forEach(t => {
@@ -243,7 +259,7 @@
                 if(!cart.some(c => c.id == t.id)) { cart.push(t); count++; }
             }
         });
-        status.innerText = count > 0 ? `✅ FOUND ${count} TESTS!` : "❓ NO MATCH. SENDING TO LAB...";
+        status.innerText = count > 0 ? `✅ FOUND ${count} TESTS!` : "❓ NO MATCH FOUND.";
         updateCartUI();
     }
 
@@ -255,7 +271,6 @@
         });
     }
 
-    // 5. Payments & UI Helpers
     function payUPI() {
         const amt = document.getElementById('cart-total').innerText;
         window.location.href = `upi://pay?pa=${UPI_ID}&pn=KannanLab&am=${amt}&cu=INR`;
@@ -263,7 +278,7 @@
     }
 
     function sendToWA() {
-        const msg = `*BOOKING FROM APP*\n*Name:* ${document.getElementById('p_name').value}\n*Tests:* ${cart.map(t=>t.test_name).join(', ')}\n*Address:* ${document.getElementById('p_street').value}`;
+        const msg = `*NEW BOOKING*\nName: ${document.getElementById('p_name').value}\nTests: ${cart.map(t=>t.test_name).join(', ')}\nAddress: ${document.getElementById('p_street').value}`;
         window.location.href = `https://wa.me/${LAB_WA}?text=${encodeURIComponent(msg)}`;
     }
 
@@ -282,7 +297,6 @@
     function openModal(id) { document.getElementById(id).style.display = 'block'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // Initial Load
     loadTests();
 </script>
 </body>
